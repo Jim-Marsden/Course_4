@@ -53,7 +53,16 @@ set(UnitTest_src_Posix
         unit_test/Posix/TimeHelpers.cpp
         unit_test/Posix/TimeHelpers.h)
 
-add_executable(HW1prog ${UnitTest_src_regular} ${UnitTest_src_Posix} HW1_main.cpp)
+set(UnitTest_src_Windows unit_test/Win32/TimeHelpers.cpp unit_test/Win32/TimeHelpers.h)
+
+IF (WIN32)
+    set(UnitTest_src_platform ${UnitTest_src_Windows})
+ELSE()
+    set(UnitTest_src_platform ${UnitTest_src_Posix})
+ENDIF()
+
+add_executable(HW1prog ${UnitTest_src_regular} ${UnitTest_src_platform} HW1_main.cpp)
+add_executable(HW2 ${UnitTest_src_regular} ${UnitTest_src_platform} HW2_main.cpp)
 
 
 #add_executable(HW1 UnitTest_src_regular)

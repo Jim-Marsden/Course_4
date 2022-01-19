@@ -4,7 +4,7 @@
 // 160707 C/C++ Programming IV: Advanced Programming with Objects
 // 159167 C/C++ Programming III -- Ray Mitchell
 // Created on 1/11/22.
-// https://Jim-Marsden/Course_4
+// https://Github.com/Jim-Marsden/Course_4
 // =====================================================================
 // main.cpp Tested on Linux on Clang 12 and g++ 11.1.0 built with C++17
 // Testing bits of the STD algorithms libraries.
