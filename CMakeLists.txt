@@ -67,7 +67,7 @@ add_executable(HW2 ${UnitTest_src_regular} ${UnitTest_src_platform} HW2_main.cpp
 
 #add_executable(HW1 UnitTest_src_regular)
 #add_subdirectory(HW1)
-add_subdirectory(unit_test)
+#add_subdirectory(unit_test)
 
 
 #cmake_minimum_required(VERSION 3.2)
