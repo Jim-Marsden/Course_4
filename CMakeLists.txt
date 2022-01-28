@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(course_8 LANGUAGES CXX)
+project(course_4 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 
@@ -61,8 +61,10 @@ ELSE()
     set(UnitTest_src_platform ${UnitTest_src_Posix})
 ENDIF()
 
-add_executable(HW1prog ${UnitTest_src_regular} ${UnitTest_src_platform} HW1_main.cpp)
+add_executable(HW1prog ${UnitTest_src_regular} ${UnitTest_src_platform} HW1_main.cpp HW3_main.cpp)
 add_executable(HW2 ${UnitTest_src_regular} ${UnitTest_src_platform} HW2_main.cpp)
+add_executable(HW3 ${UnitTest_src_regular} ${UnitTest_src_platform} HW3_main.cpp)
+
 
 
 #add_executable(HW1 UnitTest_src_regular)
