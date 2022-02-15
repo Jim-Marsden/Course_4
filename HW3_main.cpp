@@ -1,17 +1,30 @@
 //
-// Created by snizzfox on 1/27/22.
+// Jim Marsden (U09247027)
+// JimPMarsden@gmail.com
+// 160707 C/C++ Programming IV: Advanced Programming with Objects
+// 159167 C/C++ Programming III -- Ray Mitchell
+// Created on 1/17/22.
+// https://Github.com/Jim-Marsden/Course_4
+// =====================================================================
+// main.cpp Tested on Linux on Clang 12 and g++ 11.1.0 built with C++17
+//
+// A stream processor that takes in two stream objects, and processes
+// based on filters.
+// Unittests based on two sample processors.
+// =====================================================================
 //
 
 #include "unit_test/UnitTest++.h"
 
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <algorithm>
+#include <string> // for token strings
+#include <sstream> // for strign stream
+#include <algorithm> // for find/erase
 
 namespace JimMarsden {
-    class StreamProcessorAlgorithm {
+    class StreamProcessorAlgorithm { // Base "Template Method Class" for the Stream Processor
     public:
+
+        // [Constructors] =============================================================================== [Constructors]
         StreamProcessorAlgorithm(std::istream& in, std::ostream& out)
                 :in_{in}, out_{out} { }
 
@@ -25,6 +38,7 @@ namespace JimMarsden {
 
         StreamProcessorAlgorithm& operator=(StreamProcessorAlgorithm const&) = default;
 
+        // Processes the in_ stream and based on the pure virtual functions, filterToken, and processToken into the out_ stream.
         void process()
         {
             bool padding{};
@@ -45,9 +59,9 @@ namespace JimMarsden {
 
     protected:
         [[nodiscard("The whole point of this member function is to decide if the token should be filtered.")]]
-        virtual bool filterToken(const std::string& token) const = 0;
+        virtual bool filterToken(const std::string& token) const = 0; // if true, filter, else don't filter
 
-        virtual void processToken(std::string& token) const = 0;
+        virtual void processToken(std::string& token) const = 0; // mutates the token
 
     private:
 
@@ -55,7 +69,7 @@ namespace JimMarsden {
         std::ostream& out_;
     };
 
-    class UppercasingSPA : public StreamProcessorAlgorithm {
+    class UppercasingSPA : public StreamProcessorAlgorithm { // changes the lowers the case of the input stream
     public:
 
         UppercasingSPA(std::istream& in, std::ostream& out)
@@ -67,11 +81,11 @@ namespace JimMarsden {
 
         void processToken(std::string& token) const override
         {
-            std::for_each(token.begin(), token.end(), [](auto& e) { e = std::toupper(e, std::locale()); });
+            std::for_each(token.begin(), token.end(), [](auto& e) { e = std::toupper(e); });
         }
     };
 
-    class DigitStrippingSPA : public StreamProcessorAlgorithm {
+    class DigitStrippingSPA : public StreamProcessorAlgorithm { // Gets everything that has a number, and removes the number.
     public:
 
         DigitStrippingSPA(std::istream & in, std::ostream& out) : StreamProcessorAlgorithm(in, out) { }
@@ -82,7 +96,7 @@ namespace JimMarsden {
             bool result{};
 
             auto found = std::find_if(token.begin(), token.end(), [&result](auto e){
-                return std::isdigit(e, std::locale());;
+                return std::isdigit(e);;
             });
 
             return found == token.end();
@@ -90,76 +104,58 @@ namespace JimMarsden {
 
         void processToken(std::string& token) const override
         {
-            token.erase(std::find_if(token.begin(), token.end(), [](auto e){return std::isdigit(e, std::locale());}));
+            token.erase(std::find_if(token.begin(), token.end(), [](auto e){return std::isdigit(e);}));
         }
     };
 }
+
+
+// [Tests] ===================================================================================================== [Tests]
+
+template<class Test_String_T, class Processor_T>
+bool simple_test(Test_String_T const & input, Test_String_T const& expected){
+    std::stringstream in_stream, out_stream;
+
+    in_stream << input;
+    Processor_T Stream_Processor(in_stream, out_stream);
+    Stream_Processor.process();
+
+    return out_stream.str()==expected;
+
+}
+
 TEST(UppercasingSPA_Empty)
 {
-    std::stringstream in, out;
-    JimMarsden::UppercasingSPA uppercasing_spa(in, out);
-    uppercasing_spa.process();
-
-    CHECK(out.str().empty());
+    auto c = simple_test<std::string, JimMarsden::UppercasingSPA>("", "");
+    CHECK(c);
 }
 
 TEST(UppercasingSPA_Lower)
 {
+    auto test1  =simple_test<std::string, JimMarsden::UppercasingSPA>("aSdF", "ASDF");
+    auto test2  =simple_test<std::string, JimMarsden::UppercasingSPA>("asdf", "ASDF");
+    auto test3  =simple_test<std::string, JimMarsden::UppercasingSPA>("asdf asdf", "ASDF ASDF");
 
-    {
-        constexpr auto lower_test_lower{"asdf"};
-        constexpr auto lower_test_upper{"ASDF"};
-        std::stringstream in_only_lower, out_only_lower;
-        in_only_lower << lower_test_lower;
-        JimMarsden::UppercasingSPA uppercasing_lower(in_only_lower, out_only_lower);
-        uppercasing_lower.process();
-
-        CHECK(out_only_lower.str()==lower_test_upper);
-    }
-
-    {
-        constexpr auto lower_test_lower{"aSdF"};
-        constexpr auto lower_test_upper{"ASDF"};
-        std::stringstream in_only_lower, out_only_lower;
-        in_only_lower << lower_test_lower;
-        JimMarsden::UppercasingSPA uppercasing_lower(in_only_lower, out_only_lower);
-        uppercasing_lower.process();
-        CHECK(out_only_lower.str()==lower_test_upper);
-    }
+    CHECK(test1);
+    CHECK(test2);
+    CHECK(test3);
 }
 
 TEST(DigitStrippingSPA_Empty){
-    std::stringstream in, out;
-    JimMarsden::UppercasingSPA uppercasing_spa(in, out);
-    uppercasing_spa.process();
-
-    CHECK(out.str().empty());
+    auto c = simple_test<std::string, JimMarsden::DigitStrippingSPA>("", "");
+    CHECK(c);
 }
 
-TEST(DigitStrippingSPA_HasNumbers)
+
+TEST(DigitStrippingSPA_Filter_And_Alter)
 {
-
-    {
-        constexpr auto lower_test_lower{"zzzz asdf1"};
-        constexpr auto lower_test_upper{"asdf"};
-        std::stringstream in_only_lower, out_only_lower;
-        in_only_lower << lower_test_lower;
-        JimMarsden::DigitStrippingSPA uppercasing_lower(in_only_lower, out_only_lower);
-        uppercasing_lower.process();
-        CHECK(out_only_lower.str()==lower_test_upper);
-    }
-
-    {
-        constexpr auto lower_test_lower{"asdf1 asdf1"};
-        constexpr auto lower_test_upper{"asdf asdf"};
-        std::stringstream in_only_lower, out_only_lower;
-        in_only_lower << lower_test_lower;
-        JimMarsden::DigitStrippingSPA uppercasing_lower(in_only_lower, out_only_lower);
-        uppercasing_lower.process();
-        CHECK(out_only_lower.str()==lower_test_upper);
-    }
+    auto test1 = simple_test<std::string, JimMarsden::DigitStrippingSPA>("zzz asdf1", "asdf");
+    auto test2 = simple_test<std::string, JimMarsden::DigitStrippingSPA>("asdf1 asdf1", "asdf asdf");
+    CHECK(test1);
+    CHECK(test2);
 }
 
+// [Main] ======================================================================================================= [Main]
 int main()
 {
     auto test_status = UnitTest::RunAllTests(); // test runner.

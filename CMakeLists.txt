@@ -61,10 +61,12 @@ ELSE()
     set(UnitTest_src_platform ${UnitTest_src_Posix})
 ENDIF()
 
-add_executable(HW1prog ${UnitTest_src_regular} ${UnitTest_src_platform} HW1_main.cpp HW3_main.cpp)
+add_executable(HW1prog ${UnitTest_src_regular} ${UnitTest_src_platform} HW1_main.cpp HW3_main.cpp auto_ptr.cpp auto_ptr.h)
 add_executable(HW2 ${UnitTest_src_regular} ${UnitTest_src_platform} HW2_main.cpp)
 add_executable(HW3 ${UnitTest_src_regular} ${UnitTest_src_platform} HW3_main.cpp)
 add_executable(PR1 ${UnitTest_src_regular} ${UnitTest_src_platform} PR1_main.cpp BigInt.cpp BigInt.h)
+
+add_executable(HW5 ${UnitTest_src_regular} ${UnitTest_src_platform} auto_ptr.cpp auto_ptr.h)
 
 
 

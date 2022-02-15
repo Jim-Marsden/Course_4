@@ -13,10 +13,10 @@
 //
 
 #include "unit_test/UnitTest++.h"
-#include <stdexcept>
-#include <iostream>
-#include <cassert>
+#include <stdexcept> // for std::out_of_bounds
+#include <cassert> // for assert
 #include <cstring>
+#include <utility> // Move
 
 namespace JimMarsden {
 
@@ -55,24 +55,24 @@ namespace JimMarsden {
     class Queue {
     public:
         /* [Defaulted Constructors] ======================================================== [Defaulted Constructors] */
-        Queue() noexcept = default;                        // Construct empty queue
-        Queue(Queue&&) noexcept = default;        // Move constructor
+        Queue() noexcept = default;               // Construct empty queue
+        Queue(Queue&&) noexcept = delete;        // Move constructor
 
         /* [Constructors] ============================================================================= [Constructors] */
-        ~Queue() noexcept; // Destructor
+        ~Queue() noexcept;                        // Destructor
 
-        Queue(const Queue& elements); // Copy constructor
+        Queue(const Queue& elements);            // Copy constructor
 
         Queue& operator=(const Queue& elements) = default;// Copy assignment operator
 
         // [Mutators/Accessors] =================================================================== [Mutators/Accessors]
 
-        void push(const T& element);
+        void push(const T& element); // Adds element to the back of the queue
 
-        void pop();
+        void pop(); // Removes the first element from the array
 
-        [[nodiscard("front is an accessor")]] T& front(); // Return ref to front elem in queue
-        [[nodiscard("front is an accessor")]] const T& front() const;; // Return ref to front elem in queue
+        [[nodiscard("front is an accessor")]] T& front(); // Return first element in v_
+        [[nodiscard("front is an accessor")]] const T& front() const;; // Return constant first element in v_
         // Return whether queue is empty
         [[nodiscard("Only checks if there aren't any elements")]] bool empty() const noexcept;
 
@@ -81,9 +81,8 @@ namespace JimMarsden {
 
 
     private:
-        T* v_{nullptr};                           // Elems in queue
-        size_t size_{0};
-        /* Any other private members you need */
+        T* v_{nullptr};   // Queue array
+        size_t size_{0}; // Size of the array
     };
 
     template<typename T>
@@ -105,12 +104,11 @@ namespace JimMarsden {
     }
 
     template<typename T>
-    void Queue<T>::pop()
-    {
+    void Queue<T>::pop() { // Removes from the top of queue.
         if (empty()) throw std::out_of_range("Queue is empty");
-        auto x = shrinkNew(v_, size_, 1);
+        auto temp_array = shrinkNew(v_, size_, 1);
         delete[] v_;
-        v_ = x;
+        v_ = temp_array;
         size_--;
     }
 
@@ -123,28 +121,26 @@ namespace JimMarsden {
     }
 
     template<typename T>
-    T& Queue<T>::front() {
+    T& Queue<T>::front() { // Returns the front element
         if (v_!=nullptr)
             return v_[0];
         throw std::logic_error("Queue is empty");
-
     }
 
     template<typename T>
-    const T& Queue<T>::front() const {
+    const T& Queue<T>::front() const { // Returns an immutable version of the first element!
         {
             if (size_>0)
                 return v_[0];
             throw std::logic_error("Queue is empty");
         }
-
     }
 
     template<typename T>
-    bool Queue<T>::empty() const noexcept { return size()==0; }
+    bool Queue<T>::empty() const noexcept { return size()==0; } // Returns true if size is 0
 
     template<typename T>
-    size_t Queue<T>::size() const noexcept { return size_; }
+    size_t Queue<T>::size() const noexcept { return size_; } // returns Queue<T>::size_
 }
 
 
@@ -177,6 +173,8 @@ TEST(Queue_Copy_Constor)
 
 }
 
+
+
 TEST(Queue_Copy_Assignment){
     using namespace JimMarsden;
     Queue<int> queue;
@@ -186,6 +184,31 @@ TEST(Queue_Copy_Assignment){
     CHECK(q2.front() == 0);
     queue.pop();
     CHECK(q2.front() == 0);
+}
+
+TEST(Queue_Destructor){
+    auto named_object{true};
+    auto unnamed_object{true};
+
+    try{
+        JimMarsden::Queue<int>{};
+    }
+    catch(...){
+        unnamed_object = false;
+    }
+
+    try{
+        JimMarsden::Queue<int> queue;
+        for(int i{}; i < 0xfff; ++i){
+            queue.push({});
+        }
+    }
+    catch (...){
+        named_object = true;
+    }
+    CHECK(named_object);
+    CHECK(unnamed_object);
+
 }
 
 TEST(Queue_push)
