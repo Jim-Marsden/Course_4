@@ -69,18 +69,26 @@ add_executable(PR1 ${UnitTest_src_regular} ${UnitTest_src_platform} PR1_main.cpp
 add_executable(HW5 ${UnitTest_src_regular} ${UnitTest_src_platform} auto_ptr.cpp auto_ptr.h)
 
 
+add_executable(PR2_scratch dlist.h PR2_scratch.cpp)
+Include(FetchContent)
 
-#add_executable(HW1 UnitTest_src_regular)
-#add_subdirectory(HW1)
-#add_subdirectory(unit_test)
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG        v2.13.1)
+
+FetchContent_MakeAvailable(Catch2)
+
+#find_package(Catch2 REQUIRED)
+add_executable(PR2 ${UnitTest_src_regular} ${UnitTest_src_platform} PR2_main_temp.cpp dlist.h)
+target_link_libraries(PR2 Catch2::Catch2)
+
+add_executable(PR2a ${UnitTest_src_regular} ${UnitTest_src_platform} PR2_main.cpp dlist.h)
 
 
-#cmake_minimum_required(VERSION 3.2)
-#project(divider)
+
 #
-#add_subdirectory(division)
-#set(SOURCE_FILES main.cpp)
-#
-#add_executable(divider ${SOURCE_FILES})
-#target_link_libraries(divider division)
-#install(TARGETS divider DESTINATION ${DIVISIBLE_INSTALL_BIN_DIR})
+#list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/contrib)
+#include(CTest)
+#include(Catch)
+#catch_discover_tests()
